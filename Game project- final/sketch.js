@@ -15,6 +15,7 @@ var canyons;
 var collectables;
 var clouds;
 var mountains;
+var platforms;
 var camp;
 var player;
 var color;
@@ -108,8 +109,8 @@ function startGame(prev_score){
     canyons = new Canyon(5);
     canyons.initialize();
     
-    var platforms = [];
-    for (var i = 0; i < canyons.get().length - 1; i++){ 
+    platforms = [];
+    for (let i = 0; i < canyons.get().length - 1; i++){ 
         // length-1 since last canyon is always impassable on the far left of the level
         if (canyons.get()[i].halfWidth > 50){
             let currentPlatform = createPlatform(canyons.get()[i].x,canyons.get()[i].halfWidth);
@@ -153,7 +154,7 @@ function draw()
     canyons.draw();
     
     // use factory pattern to create platforms above large canyons
-    for (var i = 0; i < platforms.length; i++){
+    for (let i = 0; i < platforms.length; i++){
             platforms[i].draw();
     }
     
