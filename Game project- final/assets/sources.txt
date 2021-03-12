@@ -1,0 +1,14 @@
+stageClear.wav:
+	https://freesound.org/people/Mrthenoronha/sounds/518305/
+
+fire.wav:
+	https://freesound.org/people/Wdomino/sounds/507722/
+
+gulp.wav:
+	https://freesound.org/people/Q.K./sounds/56271/
+
+jump.wav:
+	https://freesound.org/people/cabled_mess/sounds/350898/
+
+falling.wav:
+	https://freesound.org/people/myfox14/sounds/382310/
