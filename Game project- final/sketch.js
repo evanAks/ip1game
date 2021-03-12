@@ -19,6 +19,8 @@ var platforms;
 var camp;
 var player;
 var color;
+var smoke;
+var fire;
 
 // Game overlay
 var game_score;
@@ -229,7 +231,7 @@ function keyPressed(){
         }
         startGame(0); // reset score to 0 if all lives are gone
     } else if (keyCode === 32 && player.isFalling == false && player.isPlummeting == false){ //(player.y == floorPos_y)
-        isFalling = true;
+        player.isFalling = true;
         player.y -= 100;
         jumpSound.play();
     }
@@ -598,10 +600,10 @@ function Camp(x_pos){
         
         // Emitter(x,y,xSpeed,ySpeed,size)
         // startEmitter(startParticles,lifetime)
-        var smoke = new Emitter(this.x-105, floorPos_y -60, 2.5,-.1,5);
+        smoke = new Emitter(this.x-105, floorPos_y -60, 2.5,-.1,5);
         smoke.startEmitter(700,700);
 
-        var fire = new Emitter(this.x-105, floorPos_y -30, 0,1,6);
+        fire = new Emitter(this.x-105, floorPos_y -30, 0,1,6);
         fire.startEmitter(200,180);
     }
     
