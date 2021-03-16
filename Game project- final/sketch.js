@@ -5,9 +5,8 @@ Created by Evan Akselrad
 
 */
 'use strict';
-
 var scrollPos;
-var floorPos_y
+var floorPos_y;
 
 // Scenery & Player
 var trees;
@@ -23,7 +22,7 @@ var smoke;
 var fire;
 
 // Game overlay
-var game_score;
+var gameScore;
 var gameLevel
 var lives;
 
@@ -34,8 +33,9 @@ var collectSound;
 var fallSound;
 
 function preload(){
-    soundFormats('mp3','wav');
     // load sounds
+    soundFormats('mp3','wav');
+
     jumpSound = loadSound('assets/jump.mp3');
     jumpSound.setVolume(1);
     
@@ -49,8 +49,7 @@ function preload(){
     fallSound.setVolume(0.3);
 }
 
-function setup()
-{
+function setup(){
 	createCanvas(1024, 576);
 	floorPos_y = height * .75;
     
@@ -94,13 +93,13 @@ function setup()
 }
 
 // Function to set initial gamestate, called at the beginning of the game and after losing a life
-function startGame(prev_score){
+function startGame(prevScore){
     fireSound.pause(); // pause the campfire sound if it was playing from the previous level
 	// Variable to control the background scrolling.
 	scrollPos = 1800;
 
     player = new Player();
-    player.initialize();
+    //player.initialize();
     
     clouds = new Cloud(random(15,30));
     clouds.initialize();
@@ -127,12 +126,12 @@ function startGame(prev_score){
     collectables.initialize();
     
     camp = new Camp(1700);
-    camp.initialize();
+    //camp.initialize();
     
-    // carry over score from last level
-    if (game_score == null){
-        game_score = 0;
-    } else { game_score = prev_score;}
+    // carry over score from last level, if prevScore does not exist then it must be a new game
+    if (gameScore == null){
+        gameScore = 0;
+    } else { gameScore = prevScore;}
     
     if (lives < 1 || lives == null){
         lives = 3;
@@ -155,7 +154,7 @@ function draw()
 	trees.draw();
     canyons.draw();
     
-    // use factory pattern to create platforms above large canyons
+    // use factory pattern to draw platforms above large canyons
     for (let i = 0; i < platforms.length; i++){
             platforms[i].draw();
     }
@@ -195,14 +194,14 @@ function draw()
     // Check if player has fallen into a canyon, decrement lives and continue game
     player.checkDie(); 
 }
-// Function to show current game score.
+// Function to show game overlay (level/score/lives).
 function drawOverlay(){
     textSize(20);
     fill(255,255,0);
     stroke(0);
     strokeWeight(3);
     text("Level: " + gameLevel,10,30);
-    text("Score: " + game_score,10,60);
+    text("Score: " + gameScore,10,60);
     text("Lives: " + lives, 10,90);
     noStroke();
 }
@@ -226,7 +225,7 @@ function keyPressed(){
     if (keyCode === 32 && (camp.isReached == true || lives < 1)) {
         if (camp.isReached == true){ 
             gameLevel += 1;
-            startGame(game_score);
+            startGame(gameScore);
             return;
         }
         startGame(0); // reset score to 0 if all lives are gone
@@ -251,19 +250,28 @@ function keyReleased(){
 ** ------------------------------------------*/
 
 function Player(){
+    // Initialize variables
+    this.isLeft = false;
+    this.isRight = false;
+    this.isFalling = false;
+    this.isPlummeting = false;
+    this.x = width/2;
+    this.y= floorPos_y;
+    this.worldX = this.x - scrollPos;
+
     // Function to check if player has fallen, and restart game if lives remain
     this.checkDie = function(){
         if (this.y > height){
             lives -= 1;
             if (lives > 0){
-                startGame(game_score);
+                startGame(gameScore);
             }
         }
     }
     
     this.draw = function(){
         // draw game character
-        // Not moving
+        // Not moving (also used if opposite arrow keys (L+R) are being pressed at the same time)
         if (((this.isLeft == false && this.isRight == false) || (this.isLeft == true && this.isRight == true)) && this.isFalling == false){
             //BACKPACK//
             stroke(color.packEdge);
@@ -578,7 +586,14 @@ function Particle(x,y,xSpeed,ySpeed,size){
 ** Scenery items
 */
 function Camp(x_pos){
+    // initialize variables
     this.x = x_pos;
+    this.isReached = false;
+    // initialize campfire effect emitters
+    smoke = new Emitter(this.x-105, floorPos_y -60, 2.5,-.1,5);
+    smoke.startEmitter(700,700);
+    fire = new Emitter(this.x-105, floorPos_y -30, 0,1,6);
+    fire.startEmitter(200,180);
     
     this.check= function(){
         if (dist(this.x,0,player.worldX,0) <= 5){
@@ -791,7 +806,7 @@ function Collectable(qty,obstacle){
         this.t_collectable = t_collectable;
         if (dist(this.t_collectable.x, this.t_collectable.y,player.worldX,player.y-15) <= 30){
             this.t_collectable.isFound = true;
-            game_score += 1;
+            gameScore += 1;
             collectSound.play();
         }    
     }
