@@ -23,7 +23,7 @@ var fire;
 
 // Game overlay
 var gameScore;
-var gameLevel
+var gameLevel;
 var lives;
 
 // Sounds
@@ -99,7 +99,6 @@ function startGame(prevScore){
 	scrollPos = 1800;
 
     player = new Player();
-    //player.initialize();
     
     clouds = new Cloud(random(15,30));
     clouds.initialize();
@@ -126,15 +125,16 @@ function startGame(prevScore){
     collectables.initialize();
     
     camp = new Camp(1700);
-    //camp.initialize();
     
     // carry over score from last level, if prevScore does not exist then it must be a new game
     if (gameScore == null){
         gameScore = 0;
     } else { gameScore = prevScore;}
     
+    // restart the game 
     if (lives < 1 || lives == null){
         lives = 3;
+        gameLevel = 1;
     }
 }
 
@@ -170,7 +170,6 @@ function draw()
     player.draw();
     player.move(platforms);
     
-    
     // Check game over
     if (lives < 1){
         textSize(20);
@@ -194,6 +193,7 @@ function draw()
     // Check if player has fallen into a canyon, decrement lives and continue game
     player.checkDie(); 
 }
+
 // Function to show game overlay (level/score/lives).
 function drawOverlay(){
     textSize(20);
@@ -256,7 +256,7 @@ function Player(){
     this.isFalling = false;
     this.isPlummeting = false;
     this.x = width/2;
-    this.y= floorPos_y;
+    this.y = floorPos_y;
     this.worldX = this.x - scrollPos;
 
     // Function to check if player has fallen, and restart game if lives remain
@@ -461,7 +461,6 @@ function Player(){
                 if (this.platforms[i].check(this.worldX,this.y) == true){ // check if player is standing on a platform
                     isContact = true;
                     this.isFalling = false;
-                   // break;
                 }
             }
             if (isContact == false){
@@ -479,16 +478,6 @@ function Player(){
             this.y += 4;
         }
         // Update real position of gameChar for collision detection.
-        this.worldX = this.x - scrollPos;
-    }
-    
-    this.initialize = function(){
-        this.isLeft = false;
-        this.isRight = false;
-        this.isFalling = false;
-        this.isPlummeting = false;
-        this.x = width/2;
-	    this.y= floorPos_y;
         this.worldX = this.x - scrollPos;
     }
     
@@ -609,19 +598,7 @@ function Camp(x_pos){
            fire.updateParticles('fire');
        } else { this.check(); }
     }
-    
-    this.initialize = function(){
-        this.isReached = false;
-        
-        // Emitter(x,y,xSpeed,ySpeed,size)
-        // startEmitter(startParticles,lifetime)
-        smoke = new Emitter(this.x-105, floorPos_y -60, 2.5,-.1,5);
-        smoke.startEmitter(700,700);
-
-        fire = new Emitter(this.x-105, floorPos_y -30, 0,1,6);
-        fire.startEmitter(200,180);
-    }
-    
+     
     this.draw = function(){
         //logs
         strokeWeight(2);
@@ -670,6 +647,7 @@ function Camp(x_pos){
 function Canyon(qty){
     this.qty = qty;
     this.canyons = [];
+
     // make sure we're not spawning canyons too close to each other or under gameChar start location
     this.getX = function(){
         let canyonX = random(-1100,1400);
@@ -733,7 +711,6 @@ function Canyon(qty){
 function Collectable(qty,obstacle){
     this.qty = qty;
     this.obstacle = obstacle;
-    
     this.collectables = [];
     
     // chooses an x position that isn't too close to any other collectable
@@ -750,7 +727,6 @@ function Collectable(qty,obstacle){
     
     // chooses a y value that is elevated if the collectable is spawning over a canyon
     this.getY = function(collectX){
-        var collectX = collectX;
         var y_pos = 390;
         for (var i = 0; i < this.obstacle.length; i++){
             if (collectX >= this.obstacle[i].x-this.obstacle[i].halfWidth && collectX < this.obstacle[i].x +this.obstacle[i].halfWidth){
@@ -843,9 +819,9 @@ function Cloud(qty){
 }
 
 // Factory pattern to draw and control platforms
-function createPlatform(x,halfWidth){
+function createPlatform(x_pos,halfWidth){
     var platform = {
-                    x: x - (halfWidth*.75),
+                    x: x_pos - (halfWidth*.75),
                     y: floorPos_y - 60,
                     width: (2*halfWidth)*.75,
                     draw: function(){
@@ -954,7 +930,6 @@ function Tree(qty,obstacle){
     this.trees = [];
     this.qty = qty;
     this.obstacle = obstacle;
-    
     
     this.addTree = function(){
         var t = {
