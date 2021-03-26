@@ -11,15 +11,15 @@ Extension 1: Sound
         Since I saw this game as a "backpacking adventure" where the character was drinking as
         much coffee as they could while avoiding obstacles on the way to camp, I sought out
         "natural" sounds for a laid back and relaxing game experience.
-        Additionally, I had to take the time to review the flow of my code to determine the
-        appropriate points to play and pause my sounds. In this review I would come across small
-        bugs such as the campfire loop not being paused on a new level, leading to a layered
-        campfire sound that would get worse on every level completion.
+    Additionally, I had to realize that the ideal way to start the theme music on game start was
+        to wait until the player had interacted with the game in any way (any valid keypress) and
+        *then* start the theme loop. Otherwise the console would throw an error that I needed to
+        preload the sound.
 
     Skills I learned while implementing the sound extension included learning about
-    different features of the p5.sound library, such as looping for the campfire effect,
-    as well as how to compress .wav files to .mp3 in order to speed up the preload time of 
-    the game.
+        different features of the p5.sound library, such as looping for the campfire effect,
+        as well as how to compress .wav files to .mp3 in order to speed up the preload time of 
+        the game.
 
 Extension 2: Platforms
     This extension utilizes a factory pattern to create platforms. These platforms are designed to
@@ -41,6 +41,7 @@ Extension 2: Platforms
 'use strict';
 var scrollPos;
 var floorPos_y;
+var playerInteract;
 
 // Scenery & Player
 var trees;
@@ -65,22 +66,27 @@ var jumpSound;
 var fireSound;
 var collectSound;
 var fallSound;
+var themeSound;
 
 function preload(){
     // load sounds
     soundFormats('mp3','wav');
 
-    jumpSound = loadSound('assets/jump.mp3');
-    jumpSound.setVolume(1);
+    collectSound = loadSound('assets/gulp.mp3'); //https://freesound.org/people/Q.K./sounds/56271/
+    collectSound.setVolume(0.5);
     
-    fireSound = loadSound('assets/fire.mp3');
-    fireSound.setVolume(0.3);
-    
-    collectSound = loadSound('assets/gulp.mp3');
-    collectSound.setVolume(0.3);
-    
-    fallSound = loadSound('assets/falling.mp3');
+    fallSound = loadSound('assets/falling.mp3'); //https://freesound.org/people/myfox14/sounds/382310/
     fallSound.setVolume(0.3);
+
+    fireSound = loadSound('assets/fire.mp3'); //https://freesound.org/people/Wdomino/sounds/507722/
+    fireSound.setVolume(0.5);
+    
+    jumpSound = loadSound('assets/jump.mp3'); //https://freesound.org/people/cabled_mess/sounds/350898/
+    jumpSound.setVolume(1.5);
+
+    themeSound = loadSound('assets/theme.mp3'); //https://freemusicarchive.org/music/Lobo_Loco/around/like-jj-id-1281mp3
+    themeSound.setVolume(.2);
+
 }
 
 function setup(){
@@ -121,7 +127,7 @@ function setup(){
         rock:     [100],
         rockStroke:[50]
     };
-    
+
     gameLevel = 1;
     startGame();
 }
@@ -166,6 +172,12 @@ function startGame(prevScore){
 
 function draw()
 {
+    // If player interacts with the game at all and hasn't before, start the main theme song
+    if (keyIsPressed && !playerInteract){
+        playerInteract = true;
+        themeSound.loop();
+    }
+
 	background(color.sky); // fill the sky blue
 
 	noStroke();
@@ -515,6 +527,7 @@ function Emitter(x,y,xSpeed,ySpeed,size){   // Parent constructor function
     this.startParticles = 0;
     this.lifetime = 2;
     this.particles = [];
+
     this.addParticle = function(){
         const p = new Particle(
             random(this.x-8, this.x+8),
@@ -814,7 +827,7 @@ function Cloud(qty){
     
     this.addCloud = function(){
         return {
-                x: random(-1500,2000),
+                x: random(-2000,2000),
                 y: random(75,200),
                 size: random(75,125)
         };
